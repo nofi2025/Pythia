@@ -4,7 +4,7 @@ An internal ingestion and audit engine with an owner-only review console for ass
 
 ## Internal ingestion first
 
-The hosted console remains owner-only. No customer-facing onboarding or public product UI is enabled. It opens on Ingestion; the remaining tabs are internal inspection/editing surfaces. The engine also runs headlessly from local JSON files.
+The hosted console remains owner-only. No customer-facing onboarding or public product UI is enabled. It opens on Import data with a file picker, drag-and-drop and a review step; the remaining tabs are internal inspection/editing surfaces. The engine also runs headlessly from local JSON files.
 
 ```sh
 pnpm ingest examples/ingestion.json /path/to/new-result.json
