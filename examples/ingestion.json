@@ -1,0 +1,33 @@
+{
+  "illustrative": true,
+  "source": "Illustrative inventory export — replace before customer use",
+  "company": {
+    "name": "Example company",
+    "industry": "Retail"
+  },
+  "systems": [
+    {
+      "id": "orders",
+      "name": "Order platform",
+      "vendor": "Commerce vendor",
+      "cloudProvider": "Shared cloud provider",
+      "identityProvider": "Company SSO",
+      "processes": [
+        "Customer orders"
+      ],
+      "dependsOn": [
+        "payments"
+      ]
+    },
+    {
+      "id": "payments",
+      "name": "Payment gateway",
+      "vendor": "Payment vendor",
+      "cloudProvider": "Shared cloud provider",
+      "identityProvider": "Company SSO",
+      "processes": [
+        "Customer orders"
+      ]
+    }
+  ]
+}

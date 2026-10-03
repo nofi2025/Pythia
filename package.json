@@ -13,7 +13,8 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "test": "node --import ./tests/register.mjs --test tests/*.test.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ingest": "node --import ./tests/register.mjs scripts/ingest.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

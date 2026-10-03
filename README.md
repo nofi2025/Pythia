@@ -1,6 +1,22 @@
 # Pythia — Argo Risk Audit
 
-A private analyst workspace for assessing technology and AI dependencies, investigating failure hypotheses, and producing explainable financial-risk reports. This is the scoped Argo Risk Audit MVP, not the broader MINA platform.
+An internal ingestion and audit engine with an owner-only review console for assessing technology and AI dependencies, investigating failure hypotheses, and producing explainable financial-risk reports. This is the scoped Argo Risk Audit MVP, not the broader MINA platform.
+
+## Internal ingestion first
+
+The hosted console remains owner-only. No customer-facing onboarding or public product UI is enabled. It opens on Ingestion; the remaining tabs are internal inspection/editing surfaces. The engine also runs headlessly from local JSON files.
+
+```sh
+pnpm ingest examples/ingestion.json /path/to/new-result.json
+```
+
+The output contains a validated assessment, warnings, dependency findings and deduplicated conditional stress cases. The command makes no network or AI calls and refuses to overwrite an existing output file. Source files should come from authorized customer exports. Input is currently structured JSON, not arbitrary PDFs, contracts, CSVs, scans or automated connectors.
+
+Inventory input requires `source`, `company.name` and `systems` with unique `id` and `name`. Optional system fields: `type`, `vendor`, `purpose`, `ai`, `critical`, `processes` (names), `dependsOn` (system IDs), `cloudProvider`, `identityProvider`, `region`, `controls`, `alternatives`, `source`. Company can include `industry`, `revenue` and `downtimeCost`. Set `illustrative: true` for samples. Unknown fields and dangling dependencies reject the import; review corrections rather than silently dropping data. Limits: 1.5 MB CLI/UI input, 100 systems, 200 normalized nodes/edges.
+
+Matching declared providers are grouped with whitespace/case normalization. Shared provider, cyclic recovery and indirect dependency findings are hypotheses to investigate; a vendor name does not establish its undisclosed cloud infrastructure, shared outage domain or failure likelihood. Unlisted providers remain unknown. Raw input files are not retained by the hosted console; retain authorized source evidence separately.
+
+`lib/dependencies.ts` exposes indexed graph traversal, `dependencyFindings`, `dependencyStress`, and `dependencyDowntimeCost`. A stress test uses the conditional assumption that each entered dependency propagates an interruption; it does not establish failover effectiveness or outage likelihood. The downtime cost function requires hours, a company-wide hourly cost, affected business share, and a source. It counts business interruption once, not once per affected system. Its UI inputs are temporary what-if assumptions, not report-approved estimates.
 
 ## Included
 
