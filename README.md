@@ -1,10 +1,10 @@
 # Pythia — Argo Risk Audit
 
-An internal ingestion and audit engine with an owner-only review console for assessing technology and AI dependencies, investigating failure hypotheses, and producing explainable financial-risk reports. This is the scoped Argo Risk Audit MVP, not the broader MINA platform.
+An internal decision simulator and risk engine with an owner-only review console. Model two-variable business decisions, preserve evidence, investigate technology dependencies, and produce explainable executive reports. This is the scoped Argo Risk Audit MVP, not the broader MINA platform.
 
-## Internal ingestion first
+## Import and dependency assessment
 
-The hosted console remains owner-only. No customer-facing onboarding or public product UI is enabled. It opens on Import data with a file picker, drag-and-drop and a review step; the remaining tabs are internal inspection/editing surfaces. The engine also runs headlessly from local JSON files.
+The hosted console remains owner-only. No customer-facing onboarding or public product UI is enabled. It opens with a manual simulation entry point. Import data retains its file picker, drag-and-drop and explicit review step; the audit tabs remain internal inspection/editing surfaces. The engine also runs headlessly from local JSON files.
 
 ```sh
 pnpm ingest examples/ingestion.json /path/to/new-result.json
@@ -17,6 +17,28 @@ Inventory input requires `source`, `company.name` and `systems` with unique `id`
 Matching declared providers are grouped with whitespace/case normalization. Shared provider, cyclic recovery and indirect dependency findings are hypotheses to investigate; a vendor name does not establish its undisclosed cloud infrastructure, shared outage domain or failure likelihood. Unlisted providers remain unknown. Raw input files are not retained by the hosted console; retain authorized source evidence separately.
 
 `lib/dependencies.ts` exposes indexed graph traversal, `dependencyFindings`, `dependencyStress`, and `dependencyDowntimeCost`. A stress test uses the conditional assumption that each entered dependency propagates an interruption; it does not establish failover effectiveness or outage likelihood. The downtime cost function requires hours, a company-wide hourly cost, affected business share, and a source. It counts business interruption once, not once per affected system. Its UI inputs are temporary what-if assumptions, not report-approved estimates.
+
+## Executive simulator
+
+1. Choose **Start a simulation** (or **New**) and name the company.
+2. Choose Growth / capacity or Cost pressure; describe the decision.
+3. Enter annual demand, capacity, selling price, variable COGS and fixed expenses with sources/classifications/confidence. Growth also requires annual expense per added unit of capacity. Blank values stay UNKNOWN.
+4. Enter Downside, Base and Upside percentages for the two selected variables and explain the assumptions. No defaults fabricate business data.
+5. Optionally select audit dependencies, include relevant risk evidence, and add analyst review/mitigation notes.
+6. **Run simulation**. Review operating profit, margins, utilization, unmet demand, sensitivity, break-even and formula details.
+7. **Keep run for comparison**, then **Save assessment**. Baseline and draft inputs are also saved; each kept run is an independent snapshot (maximum 30).
+8. Change inputs, rerun and select an earlier run to compare. Saved simulations → Load inputs restores that run for editing.
+9. Download an executive HTML report, open it and use Print → Save as PDF. Reports without review notes are marked DRAFT. The audit report retains its separate explicit approval gate.
+
+Two deterministic models use one annual period and blended unit economics. Growth varies demand and capacity; cost pressure varies demand and unit COGS. The simulator caps sales at capacity, prices expansion via an explicit annual expense, and compares expansion with unchanged capacity under the same demand. Sensitivity varies one input at a time over the entered range and checks the capacity kink. It does not infer probabilities, cash returns or dependency outage losses. Observations are rule-based; no LLM calls. The annual baseline is scoped to this decision and is not silently substituted for company-wide audit revenue.
+
+Headless simulation (fictional example; choose a new output path):
+
+```sh
+pnpm simulate examples/simulation.json /tmp/pythia-result.json
+```
+
+This writes deterministic JSON plus `/tmp/pythia-result.json.html`. The input is a versioned snapshot with baseline, two-variable cases, sources, confidence, dependency context and notes.
 
 ## Included
 
@@ -52,7 +74,10 @@ Apply each local migration once, in filename order. The development command prin
 pnpm test
 pnpm typecheck
 pnpm build
+pnpm test:runtime
 ```
+
+`test:runtime` executes the actual built Worker in an ephemeral local Miniflare/D1 instance. It renders the application and checks authenticated create/update/reload, saved simulation drafts and snapshots, conflict handling and ownership. Test identity headers are only used inside this isolated harness.
 
 `pnpm install:ci` is an optional managed Linux installation helper; ordinary local machines should use `pnpm install`.
 
@@ -71,7 +96,12 @@ Blank numeric fields mean UNKNOWN. Enter zero only when confirmed. Changes to re
 ## Architecture
 
 - `app/workspace.tsx`: assessment workflow and dashboard.
-- `lib/model.ts`: schemas, safe blank records and fictional demo.
+- `lib/model.ts`: backward-compatible assessment schemas, safe blank records and fictional demo.
+- `app/simulator.tsx`: baseline, two-variable simulation, saved runs and comparison interface.
+- `lib/simulation.ts`: version-1 input/snapshot contracts and pure deterministic engine.
+- `lib/simulation-observation.ts`: rule-based interpretations, separated from arithmetic.
+- `lib/simulation-report.ts`: reproducible escaped decision reports.
+- `scripts/simulate.mjs`: headless engine entry point.
 - `lib/engine.ts`: deterministic risk, financial and dependency calculations.
 - `lib/report.ts`: escaped, self-contained executive report generation.
 - `lib/api.ts`: authenticated assessment API handlers and input validation.
@@ -94,4 +124,4 @@ Severity is analyst-rated from 1 (minimal) to 5 (critical) across five dimension
 
 This is an analyst-operated MVP suitable for demonstration and a controlled pilot. It is not a certification of production security or a validated actuarial/insurance model. External customer onboarding, team roles, billing, automated evidence ingestion, paid AI generation, native server-side PDF rendering and a joint-event portfolio model are outside this release.
 
-Automated tests exercise calculations, UNKNOWN handling, validation, report exclusion/escaping, ownership, stale writes, transaction rollback and API responses. Production compilation and types are checked. Browser interaction and visual QA were unavailable in the build environment; perform a signed-in browser acceptance run (create → save → reload → approve → export) before a customer pilot. Configure data retention, backup/export procedures and operational monitoring for commercial use.
+27 automated tests exercise risk and simulation calculations, UNKNOWN handling, validation, report exclusion/escaping, ownership, stale writes, transaction rollback and persistence. The built application also passes a local Worker/D1 runtime check. Growth results were independently checked using Python Decimal arithmetic. Production compilation and types are checked. Browser interaction and visual QA were unavailable because this environment did not expose the required control-browser skill. Manual browser acceptance remains unverified: perform create → enter baseline → run → keep → save → reload → compare → export, plus audit approval/export, before a customer pilot. Configure data retention, backup/export procedures and operational monitoring for commercial use.

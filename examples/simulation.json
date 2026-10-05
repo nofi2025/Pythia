@@ -1,0 +1,77 @@
+{
+  "id": "illustrative-growth-v1",
+  "version": 1,
+  "createdAt": "2026-10-05T00:00:00.000Z",
+  "company": "Fictional manufacturing company",
+  "baseline": {
+    "demand": {
+      "value": 10000,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    },
+    "capacity": {
+      "value": 10000,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    },
+    "price": {
+      "value": 100,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    },
+    "unitCost": {
+      "value": 60,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    },
+    "fixedCost": {
+      "value": 200000,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    },
+    "expansionCost": {
+      "value": 10,
+      "source": "Illustrative test fixture; not customer data",
+      "origin": "Illustrative sample",
+      "confidence": "Medium"
+    }
+  },
+  "input": {
+    "title": "Expand annual capacity by 25%",
+    "theory": "Illustrative model to verify decision arithmetic",
+    "template": "growth",
+    "assumptions": "Illustrative user assumptions, constant price and full-year capacity",
+    "confidence": "Low",
+    "cases": [
+      {
+        "name": "Downside",
+        "demand": -10,
+        "second": 25
+      },
+      {
+        "name": "Base",
+        "demand": 10,
+        "second": 25
+      },
+      {
+        "name": "Upside",
+        "demand": 30,
+        "second": 25
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "id": "supplier",
+      "label": "Key supplier",
+      "kind": "Vendor"
+    }
+  ],
+  "riskNotes": "User assumption: sole supplier may limit availability; financial effect unmodeled.",
+  "reviewNotes": ""
+}

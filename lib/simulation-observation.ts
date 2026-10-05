@@ -1,0 +1,7 @@
+import {limitations,type SimulationSnapshot,type SimulationResult} from './simulation';
+// Rule-based interpretation only. No LLM, remote service or unsupported numerical inference.
+export function observation(s:SimulationSnapshot,r:SimulationResult):string[]{
+ const sorted=[...r.sensitivity].sort((a,b)=>b.profitEffect-a.profitEffect);
+ const driver=sorted[0].profitEffect===sorted[1].profitEffect?'Both selected variables have the same modeled profit sensitivity.':`${sorted[0].label} has the larger effect on operating profit over your selected ranges, with the other variable held at its Base assumption.`;
+ return [driver,s.input.template==='growth'?'Expansion adds annual expense even when extra capacity is unused. Validate demand and expansion delivery timing before committing.':'Supplier changes affect variable COGS only. Lower demand also reduces contribution available to cover fixed expenses.',s.dependencies.length?`Review ${s.dependencies.length} selected dependencies for bottlenecks and outages. Their financial effects are not included in these results.`:'No dependencies selected. Add the systems, suppliers or business processes needed to deliver this decision.',`Confidence: ${r.confidence}. Improve confidence by validating demand evidence, unit economics and cost assumptions. ${s.riskNotes?'Review the attached risk notes.':'Decision-specific risk evidence is missing.'}`,limitations];
+}

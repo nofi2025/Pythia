@@ -46,3 +46,9 @@ test('API validates input and supports create, fetch, list, update and conflict 
  const list=await api.GET(new Request('https://app.test/api/assessments'));assert.equal((await list.json()).length,1);
  const other=assessmentHandlers(()=>db,async()=>({userId:'bob'}));assert.equal((await other.GET(new Request('https://app.test/api/assessments?id='+a.id))).status,404);
 });
+
+test('saved simulator baseline and snapshots survive API reload and do not change with current baseline',async()=>{
+ const {snapshot}=await import('./fixtures/simulation.mjs');const {db}=database();const api=assessmentHandlers(()=>db,async()=>({userId:'alice'}));const a=demo();const s=snapshot();a.baseline=structuredClone(s.baseline);a.simulations=[s];
+ const post=body=>api.POST(new Request('https://app.test/api/assessments',{method:'POST',headers:{origin:'https://app.test','content-type':'application/json'},body:JSON.stringify(body)}));
+ assert.equal((await post(a)).status,200);const loaded=await (await api.GET(new Request('https://app.test/api/assessments?id='+a.id))).json();assert.deepEqual(loaded.simulations,[s]);loaded.baseline.price.value=120;assert.equal((await post(loaded)).status,200);const refreshed=await getAssessment(db,a.id,'alice');assert.equal(refreshed.baseline.price.value,120);assert.equal(refreshed.simulations[0].baseline.price.value,100);
+});
